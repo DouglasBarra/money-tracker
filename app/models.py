@@ -1,55 +1,47 @@
-from sqlmodel import Field, Session, SQLModel, create_engine, select, col
+from sqlmodel import Field
 
+from app.database import *
+
+class Bank(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+class BankBase(SQLModel):
+    name: str
+    code: int
+
+class BankCreate(BankBase):
+    pass
+
+class BankPublic(SQLModel):
+    id: int
+
+class BankUpdate(SQLModel):
+    name: str | None = None
+    code: int | None = None
+
+class Card(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    bank_id: int | None = Field(default=None, foreign_key="bank.id")
+    debit: bool
+    credit: bool
+    description: str | None = None
 
 class Hero(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
+
+class HeroBase(SQLModel):
     name: str
     secret_name: str
     age: int | None = None
 
-sql_file_name = "database.db"
-sqlite_url = f"sqlite:///{sql_file_name}"
+class HeroCreate(HeroBase):
+    pass
 
-engine = create_engine(sqlite_url, echo=True)
+class HeroPublic(HeroBase):
+    id: int
 
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
+class HeroUpdate(SQLModel):
+    name: str | None = None
+    secret_name: str | None = None
+    age: int | None = None
 
-def create_heroes():
-    hero_1 = Hero(name="name1", secret_name="name10")
-    hero_2 = Hero(name="name2", secret_name="name20")
-    hero_3 = Hero(name="name3", secret_name="name30", age=48)
-
-    with Session(engine) as session:
-        session.add(hero_1)
-        session.add(hero_2)
-        session.add(hero_3)
-
-        session.commit()
-
-def select_heroes():
-    with Session(engine) as session:
-        heroes = session.exec(select(Hero).where(col(Hero.name) == "name2")).all()
-        print(heroes)
-
-def update_heroes():
-    with Session(engine) as session:
-        statement = select(Hero).where(col(Hero.name) == "name2")
-        results = session.exec(statement)
-        hero = results.one()
-        print("Hero: ", hero)
-
-        hero.age = 16
-        session.add(hero)
-        session.commit()
-        session.refresh(hero)
-        print("updated hero: ", hero)
-
-def main():
-    create_db_and_tables()
-    create_heroes()
-    select_heroes()
-    update_heroes()
-
-if __name__ == "__main__":
-    main()
