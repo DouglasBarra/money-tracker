@@ -19,13 +19,6 @@ class BankUpdate(SQLModel):
     name: str | None = None
     code: int | None = None
 
-class Card(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    bank_id: int | None = Field(default=None, foreign_key="bank.id")
-    debit: bool
-    credit: bool
-    description: str | None = None
-
 class Hero(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
@@ -45,3 +38,9 @@ class HeroUpdate(SQLModel):
     secret_name: str | None = None
     age: int | None = None
 
+class Card(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    bank: str
+    debit: bool
+    credit: bool
+    description: str | None = None
